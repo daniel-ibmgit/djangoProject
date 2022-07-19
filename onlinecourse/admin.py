@@ -1,23 +1,25 @@
 from django.contrib import admin
 # <HINT> Import any new Models here
 from .models import Course, Lesson, Instructor, Learner, Question, Choice
+from nested_admin import NestedModelAdmin, NestedTabularInline
 
 # <HINT> Register QuestionInline and ChoiceInline classes here
-class QuestionInline(admin.StackedInline):
-    model = Question
-    extra = 1
-
-class ChoiceInline(admin.StackedInline):
+class ChoiceInline(NestedTabularInline):
     model = Choice
     extra = 2
 
-class LessonInline(admin.StackedInline):
+class QuestionInline(NestedTabularInline):
+    model = Question
+    extra = 1
+    inlines = [ChoiceInline]
+
+class LessonInline(NestedTabularInline):
     model = Lesson
     extra = 5
 
 
 # Register your models here.
-class CourseAdmin(admin.ModelAdmin):
+class CourseAdmin(NestedModelAdmin):
     inlines = [LessonInline, QuestionInline]
     list_display = ('name', 'pub_date')
     list_filter = ['pub_date']
