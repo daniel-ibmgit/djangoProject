@@ -114,15 +114,14 @@ def submit(request, course_id):
     user = request.user
     course = get_object_or_404(Course, pk=course_id)
     enroll_object = Enrollment.objects.get(user=user, course=course)
+    choice_id_list = extract_answers(request)
+    choice_list = []
+    for single_id in choice_id_list:
+        choice_list.append(Choice.objects.get(id=single_id))
     submission = Submission.objects.create(enrollment=enroll_object)
-    try:
-        submission.choices = extract_answers(request)
-        return HttpResponseRedirect(reverse(viewname='onlinecourse:show_exam_result', args=(course.id, submission.id,))
-    except:
-        print("Error. Most likely because the request is not POST")
-            
-
-
+    submission.choices.set(choice_list)
+    submission.save()
+    return HttpResponseRedirect(reverse(viewname='onlinecourse:show_exam_result', args=(course.id, submission.id,)))
 
 
 # <HINT> A example method to collect the selected choices from the exam form from the request object
@@ -168,6 +167,7 @@ def show_exam_result(request, course_id, submission_id):
     context['course'] = course
     context['choices'] = choices
     context['grade'] = my_grade/perfect_grade * 100
+    context['perfect_grade'] = perfect_grade
     return render(request, 'onlinecourse/exam_result_bootstrap.html', context)
         
 
