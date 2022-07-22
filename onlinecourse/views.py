@@ -118,8 +118,10 @@ def submit(request, course_id):
     choice_list = []
     for single_id in choice_id_list:
         choice_list.append(Choice.objects.get(id=single_id))
-    submission = Submission.objects.create(enrollment=enroll_object)
-    submission.choices.set(choice_list)
+    submission = Submission(enrollment=enroll_object)
+    submission.save()
+    for choice in choice_list:
+        submission.choices.add(choice)
     submission.save()
     return HttpResponseRedirect(reverse(viewname='onlinecourse:show_exam_result', args=(course.id, submission.id,)))
 
@@ -147,7 +149,9 @@ def show_exam_result(request, course_id, submission_id):
     course = get_object_or_404(Course, pk=course_id)
     submission = Submission.objects.get(id=submission_id)
     # Get choices from submission
-    choices = submission.choices.all()
+    choice_list = []
+    for choice in submission.choices.all():
+        choice_list.append(choice)
     questions = set()
     my_grade = 0.0
     perfect_grade = 0.0
@@ -158,16 +162,15 @@ def show_exam_result(request, course_id, submission_id):
     for question in questions:
         add = True
         for choice1 in question.choice_set.all():
-            if (choice1.is_correct and choice1.id not in choices) or (not choice1.is_correct and choice1.id in choices):
+            if (choice1.is_correct and choice1 not in choice_list) or (not choice1.is_correct and choice1 in choice_list):
                 add = False
                 break
         if (add):
             my_grade += question.grade
         perfect_grade += question.grade
     context['course'] = course
-    context['choices'] = choices
-    context['grade'] = my_grade/perfect_grade * 100
-    context['perfect_grade'] = perfect_grade
+    context['choices'] = choice_list
+    context['grade'] = round(my_grade/perfect_grade * 100, 1)
     return render(request, 'onlinecourse/exam_result_bootstrap.html', context)
         
 

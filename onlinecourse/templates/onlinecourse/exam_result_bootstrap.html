@@ -39,12 +39,12 @@
     {% if grade > 80 %}
     <div class="alert alert-success">
        <!--HINT Display passed info -->
-       <p><b>Congratulations, {{user.username}}!</b> You have passed the exam and completed the course with score {{grade}} / {{perfect_grade}}</p>
+       <p><b>Congratulations, {{user.username}}!</b> You have passed the exam and completed the course with score {{grade}} / 100.0</p>
     </div>
         {% else %}
         <div class="alert alert-danger">
             <!--HINT Display failed info -->
-            <p><b>Failed</b> Sorry, {{user.username}}! You have failed the exam with score {{grade}} / {{perfect_grade}}</p>
+            <p><b>Failed</b> Sorry, {{user.username}}! You have failed the exam with score {{grade}} / 100.0</p>
         </div>
         <a class="btn btn-link text-danger" href="{% url 'onlinecourse:course_details' course.id %}">Re-test</a>
         {% endif %}
@@ -57,7 +57,7 @@
                     <div class="card-body">
                         {% for choice1 in question.choice_set.all %}
                             {% if choice1.is_correct %}
-                                {% if choice1.id in choices %}
+                                {% if choice1 in choices %}
                                     <p style="color:green;">Correct Answer: {{choice1.choice_text}}</p>
                                 {% else %}
                                     <p style="color:yellow;">Not selected: {{choice1.choice_text}}</p>                                    
