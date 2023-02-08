@@ -170,7 +170,7 @@ def show_exam_result(request, course_id, submission_id):
         perfect_grade += question.grade
     context['course'] = course
     context['choices'] = choice_list
-    context['grade'] = round(my_grade/perfect_grade * 100, 1)
+    context['grade'] = round(my_grade/perfect_grade * 100, 1) if perfect_grade != 0 else 0
     return render(request, 'onlinecourse/exam_result_bootstrap.html', context)
         
 
